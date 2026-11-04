@@ -46,7 +46,7 @@ The app uses:
 | --- | --- |
 | React Native | `0.88.1` |
 | React | `19.3.1` |
-| Node.js | `^22.13.0 || ^24.3.0 || >=26.0.0` |
+| Node.js | `^22.13.0 \|\| ^24.3.0 \|\| >=26.0.0` |
 | Yarn | `3.6.4` (repository-pinned) |
 | Apple toolchain | Xcode `27.2` with the iOS `27.2` SDK |
 | Android toolchain | JDK `17`, compile SDK / Build Tools `37`, Gradle `9.4.1` |
