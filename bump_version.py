@@ -1,4 +1,5 @@
-import json, os
+import json
+import subprocess
 
 package_json = json.load(open("package.json"))
 
@@ -9,6 +10,8 @@ version = ".".join(version.split(".")[:-1] + [str(new_version)])
 package_json["buildVersion"] = new_version
 package_json["version"] = version
 
-json.dump(package_json, open("package.json", "w+"), indent=2)
+with open("package.json", "w") as package_file:
+    json.dump(package_json, package_file, indent=2)
+    package_file.write("\n")
 
-os.system("bash sync_version_ios.sh")
+subprocess.run(["bash", "sync_version_ios.sh"], check=True)
