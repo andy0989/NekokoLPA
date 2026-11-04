@@ -1,5 +1,6 @@
 import React from 'react';
-import {View} from 'react-native';
+import {ScrollView, View} from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {AlertTriangle, CheckCircle, Info} from '@tamagui/lucide-icons';
 import {Card, Spinner, Text as TText, useTheme, XStack, YStack} from 'tamagui';
 import {fontSize, radius} from '@/shared/theme/tokens';
@@ -39,6 +40,7 @@ export default function BlockingLoader({
   progress,
 }: BlockingLoaderProps) {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
 
   if (!visible) {
     return null;
@@ -70,8 +72,10 @@ export default function BlockingLoader({
         right: 0,
         top: 0,
         bottom: 0,
-        alignItems: 'center',
-        justifyContent: 'center',
+        paddingTop: insets.top,
+        paddingBottom: insets.bottom,
+        paddingLeft: insets.left,
+        paddingRight: insets.right,
         zIndex: 999,
       }}
       pointerEvents="auto"
@@ -88,58 +92,71 @@ export default function BlockingLoader({
         }}
       />
 
-      <Card
-        elevate
-        bordered
-        size="$4"
-        backgroundColor={theme.surfaceRow?.val || theme.background?.val}
-        borderColor={theme.borderColor?.val}
-        borderRadius={radius.md}
-        padding={20}
-        maxWidth={320}
-        minWidth={260}>
-        <YStack alignItems="center" gap={10}>
-          {state !== 'loading' ? (
-            <XStack alignItems="center" justifyContent="center">
-              <StateIcon size={24} color={stateColor} />
-            </XStack>
-          ) : normalizedProgress === undefined ? (
-            <Spinner size="large" color={stateColor} />
-          ) : (
-            <YStack width="100%" gap={6}>
-              <View
-                style={{
-                  width: '100%',
-                  height: 8,
-                  borderRadius: radius.pill,
-                  backgroundColor: theme.color0?.val,
-                }}>
+      <ScrollView
+        style={{flex: 1}}
+        contentContainerStyle={{
+          flexGrow: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 20,
+        }}>
+        <Card
+          elevate
+          bordered
+          size="$4"
+          backgroundColor={theme.surfaceRow?.val || theme.background?.val}
+          borderColor={theme.borderColor?.val}
+          borderRadius={radius.md}
+          padding={20}
+          maxWidth={320}
+          width="100%">
+          <YStack alignItems="center" gap={10}>
+            {state !== 'loading' ? (
+              <XStack alignItems="center" justifyContent="center">
+                <StateIcon size={24} color={stateColor} />
+              </XStack>
+            ) : normalizedProgress === undefined ? (
+              <Spinner size="large" color={stateColor} />
+            ) : (
+              <YStack width="100%" gap={6}>
                 <View
                   style={{
-                    width: `${normalizedProgress}%`,
-                    height: '100%',
+                    width: '100%',
+                    height: 8,
                     borderRadius: radius.pill,
-                    backgroundColor: stateColor,
-                  }}
-                />
-              </View>
-              <TText fontSize={fontSize.sm} color="$color6" textAlign="center">
-                {normalizedProgress}%
+                    backgroundColor: theme.color0?.val,
+                  }}>
+                  <View
+                    style={{
+                      width: `${normalizedProgress}%`,
+                      height: '100%',
+                      borderRadius: radius.pill,
+                      backgroundColor: stateColor,
+                    }}
+                  />
+                </View>
+                <TText fontSize={fontSize.sm} color="$color6" textAlign="center">
+                  {normalizedProgress}%
+                </TText>
+              </YStack>
+            )}
+            {title ? (
+              <TText
+                fontSize={fontSize.lg}
+                fontWeight="700"
+                color="$textDefault"
+                textAlign="center">
+                {title}
               </TText>
-            </YStack>
-          )}
-          {title ? (
-            <TText fontSize={fontSize.lg} fontWeight="700" color="$textDefault" textAlign="center">
-              {title}
-            </TText>
-          ) : null}
-          {effectiveSubtitle ? (
-            <TText fontSize={fontSize.sm} color="$color6" textAlign="center">
-              {effectiveSubtitle}
-            </TText>
-          ) : null}
-        </YStack>
-      </Card>
+            ) : null}
+            {effectiveSubtitle ? (
+              <TText fontSize={fontSize.sm} color="$color6" textAlign="center">
+                {effectiveSubtitle}
+              </TText>
+            ) : null}
+          </YStack>
+        </Card>
+      </ScrollView>
     </View>
   );
 }

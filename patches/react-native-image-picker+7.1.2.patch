@@ -1,0 +1,12 @@
+diff --git a/node_modules/react-native-image-picker/android/build.gradle b/node_modules/react-native-image-picker/android/build.gradle
+--- a/node_modules/react-native-image-picker/android/build.gradle
++++ b/node_modules/react-native-image-picker/android/build.gradle
+@@ -8,7 +8,7 @@
+ }
+ 
+ android {
+-    compileSdkVersion 33
++    compileSdkVersion safeExtGet('compileSdkVersion', 33)
+ 
+     def agpVersion = com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION
+     if (agpVersion.tokenize('.')[0].toInteger() >= 7) {

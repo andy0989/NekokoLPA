@@ -7,23 +7,23 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		8CB9EF582F23031F002A31A0 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 8CB9EF572F23031F002A31A0 /* AppIcon.icon */; };
 		0C80B921A6F3F58F76C31292 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		8C5BB0FF2CEB583A0089737C /* AsyncHTTPClient in Frameworks */ = {isa = PBXBuildFile; productRef = 8C5BB0FE2CEB583A0089737C /* AsyncHTTPClient */; };
+		8CB9EF582F23031F002A31A0 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 8CB9EF572F23031F002A31A0 /* AppIcon.icon */; };
 		8CC7D2CF2CDBE2C900EE91E7 /* CCIDPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CC7D2CE2CDBE2C900EE91E7 /* CCIDPlugin.swift */; };
 		8CC7D2D12CDBE3EB00EE91E7 /* CCIDPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CC7D2D02CDBE3EB00EE91E7 /* CCIDPlugin.m */; };
 		8CC7D2DA2CDC9D5A00EE91E7 /* CustomHttp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CC7D2D92CDC9D5A00EE91E7 /* CustomHttp.swift */; };
 		8CC7D2DC2CDC9D7600EE91E7 /* CustomHttp.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CC7D2DB2CDC9D7600EE91E7 /* CustomHttp.m */; };
 		984F582519C4230BA4307B6C /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
+		D3878FF5BE6619F5BF64D25E /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DFDBBDE451A5ECD745FEFC13 /* SceneDelegate.m */; };
 		F559F192714A9331A2D2540A /* libPods-NekokoLPA.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6CEC0F080363983D3A3A9F20 /* libPods-NekokoLPA.a */; };
 		F571B3882BD7A3F80014213C /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = F571B3872BD7A3F80014213C /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		8CB9EF572F23031F002A31A0 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* NekokoLPA.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NekokoLPA.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = NekokoLPA/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = NekokoLPA/AppDelegate.mm; sourceTree = "<group>"; };
@@ -33,11 +33,14 @@
 		201C54C75A27686A90E8E10B /* Pods-NekokoLPA.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NekokoLPA.release.xcconfig"; path = "Target Support Files/Pods-NekokoLPA/Pods-NekokoLPA.release.xcconfig"; sourceTree = "<group>"; };
 		5FE7F0A3B73D3051C94B0584 /* Pods-NekokoLPA.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NekokoLPA.debug.xcconfig"; path = "Target Support Files/Pods-NekokoLPA/Pods-NekokoLPA.debug.xcconfig"; sourceTree = "<group>"; };
 		6CEC0F080363983D3A3A9F20 /* libPods-NekokoLPA.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NekokoLPA.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		8CB9EF572F23031F002A31A0 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		8CC7D2CD2CDBE2C900EE91E7 /* NekokoLPA-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NekokoLPA-Bridging-Header.h"; sourceTree = "<group>"; };
 		8CC7D2CE2CDBE2C900EE91E7 /* CCIDPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CCIDPlugin.swift; sourceTree = "<group>"; };
 		8CC7D2D02CDBE3EB00EE91E7 /* CCIDPlugin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CCIDPlugin.m; sourceTree = "<group>"; };
 		8CC7D2D92CDC9D5A00EE91E7 /* CustomHttp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomHttp.swift; sourceTree = "<group>"; };
 		8CC7D2DB2CDC9D7600EE91E7 /* CustomHttp.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CustomHttp.m; sourceTree = "<group>"; };
+		D50D12A979F9C8A172681FE9 /* SceneDelegate.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = SceneDelegate.h; path = NekokoLPA/SceneDelegate.h; sourceTree = "<group>"; };
+		DFDBBDE451A5ECD745FEFC13 /* SceneDelegate.m */ = {isa = PBXFileReference; includeInIndex = 1; name = SceneDelegate.m; path = NekokoLPA/SceneDelegate.m; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F571B3872BD7A3F80014213C /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -71,6 +74,8 @@
 				8CC7D2CE2CDBE2C900EE91E7 /* CCIDPlugin.swift */,
 				8CC7D2D02CDBE3EB00EE91E7 /* CCIDPlugin.m */,
 				8CC7D2CD2CDBE2C900EE91E7 /* NekokoLPA-Bridging-Header.h */,
+				D50D12A979F9C8A172681FE9 /* SceneDelegate.h */,
+				DFDBBDE451A5ECD745FEFC13 /* SceneDelegate.m */,
 			);
 			name = NekokoLPA;
 			sourceTree = "<group>";
@@ -309,6 +314,7 @@
 				8CC7D2D12CDBE3EB00EE91E7 /* CCIDPlugin.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				8CC7D2CF2CDBE2C900EE91E7 /* CCIDPlugin.swift in Sources */,
+				D3878FF5BE6619F5BF64D25E /* SceneDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -483,6 +489,7 @@
 				OTHER_CFLAGS = (
 					"$(inherited)",
 					"-DRN_FABRIC_ENABLED",
+					"-DRCT_REMOVE_LEGACY_ARCH=1",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
@@ -490,8 +497,10 @@
 					"-DFOLLY_MOBILE=1",
 					"-DFOLLY_USE_LIBCPP=1",
 					"-DRN_FABRIC_ENABLED",
+					"-DRCT_REMOVE_LEGACY_ARCH=1",
 				);
 				OTHER_LDFLAGS = "$(inherited)";
+				PODFILE_DIR = "$(SRCROOT)";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
@@ -564,6 +573,7 @@
 				OTHER_CFLAGS = (
 					"$(inherited)",
 					"-DRN_FABRIC_ENABLED",
+					"-DRCT_REMOVE_LEGACY_ARCH=1",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
@@ -571,8 +581,10 @@
 					"-DFOLLY_MOBILE=1",
 					"-DFOLLY_USE_LIBCPP=1",
 					"-DRN_FABRIC_ENABLED",
+					"-DRCT_REMOVE_LEGACY_ARCH=1",
 				);
 				OTHER_LDFLAGS = "$(inherited)";
+				PODFILE_DIR = "$(SRCROOT)";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;

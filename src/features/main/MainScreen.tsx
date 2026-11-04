@@ -38,6 +38,7 @@ function Main({navigation}: RootScreenProps<'Main'>) {
         <XStack
           alignItems="center"
           justifyContent="space-between"
+          flexWrap="wrap"
           gap={12}
           paddingHorizontal={14}
           paddingTop={12}

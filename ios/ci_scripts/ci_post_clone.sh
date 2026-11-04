@@ -11,10 +11,13 @@ cd ../..
 # 1. Install Node.js and Yarn
 # Xcode Cloud environment might not have Node.js in the PATH by default.
 # Homebrew is pre-installed on Xcode Cloud.
-if ! command -v node &> /dev/null; then
-    echo "Node.js not found, installing via Homebrew..."
-    brew install node@20
-    brew link --overwrite node@20
+if ! command -v node &> /dev/null || ! node -e '
+  const [major, minor] = process.versions.node.split(".").map(Number);
+  process.exit((major === 22 && minor >= 13) || (major === 24 && minor >= 3) || major >= 26 ? 0 : 1);
+'; then
+    echo "Installing a Node.js version supported by React Native 0.88..."
+    brew install node@24
+    brew link --overwrite node@24
 fi
 
 if ! command -v yarn &> /dev/null; then

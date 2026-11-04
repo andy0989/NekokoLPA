@@ -6,7 +6,7 @@ import {store} from '@/store';
 import {Provider} from 'react-redux';
 import ApplicationNavigator from '@/app/navigation/RootNavigator';
 import {TamaguiProvider} from '@tamagui/core';
-import {KeyboardAvoidingView, LogBox, Platform} from 'react-native';
+import {KeyboardAvoidingView, Platform} from 'react-native';
 import {PortalProvider} from '@tamagui/portal';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import React, {useEffect, useMemo, useState} from 'react';
@@ -20,12 +20,6 @@ import {
   MATERIAL_YOU,
   migrateLegacyDefaultColor,
 } from '@/shared/theme/presetColors';
-
-// @react-navigation/stack still calls InteractionManager from its Card view,
-// which RN 0.83 deprecated, so every launch raises a LogBox warning we cannot
-// act on. It is still there in the latest 7.10.x, so this is not something a
-// version bump fixes. Drop this line once react-navigation stops using it.
-LogBox.ignoreLogs(['InteractionManager has been deprecated']);
 
 const getThemeColor = () => {
   if (isSimplifiedMode()) return DEFAULT_THEME_COLOR;

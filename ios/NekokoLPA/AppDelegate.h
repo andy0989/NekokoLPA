@@ -1,6 +1,5 @@
-#import <RCTAppDelegate.h>
 #import <UIKit/UIKit.h>
 
-@interface AppDelegate : RCTAppDelegate <NSURLSessionDelegate>
+@interface AppDelegate : UIResponder <UIApplicationDelegate>
 
 @end

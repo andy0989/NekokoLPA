@@ -21,23 +21,24 @@ jobs:
           cache: gradle
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v7
         with:
-          node-version: '20'
+          node-version: '24'
 
-      # This is a Yarn 3 project with a committed yarn.lock. Installing with npm
-      # ignored that lockfile and re-resolved every range, which is what broke
-      # the build: reanimated ^4.2.0 and worklets ^0.7.0 resolved to 4.5.3 and
-      # 0.7.4, a pairing reanimated rejects ("Please install Worklets 0.10.x or
-      # newer"), while the lockfile pins the compatible 4.2.0 / 0.7.1.
       - name: Install dependencies
         run: |
           corepack enable
           yarn install --immutable
 
+      - name: Check application
+        run: |
+          yarn type-check
+          yarn lint
+          yarn test --runInBand
+
       - name: Extract version from package.json
         id: extract_version
-        run: echo "VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
+        run: echo "VERSION=$(jq -r .version package.json)" >> "$GITHUB_ENV"
 
       - name: Build and Sign Multisign Variant
         env:
@@ -47,9 +48,21 @@ jobs:
           mkdir -p output
           chmod +x apply_variant.sh generate_variant.sh build_variant.sh variants/*/signing.sh
           
-          ./build_variant.sh multisign ee.nekoko.nlpa-${VERSION}-multisign.apk
+          ./build_variant.sh multisign "ee.nekoko.nlpa-${VERSION}-multisign.apk"
+
+      - name: Check for a new release version
+        if: github.event_name == 'push'
+        id: release_check
+        run: |
+          tag_ref="$(git ls-remote --tags origin "refs/tags/v${VERSION}")"
+          if [ -z "$tag_ref" ]; then
+            echo "needed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "needed=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Create Release
+        if: github.event_name == 'push' && steps.release_check.outputs.needed == 'true'
         id: create_release
         uses: actions/create-release@v1
         env:
@@ -63,6 +76,7 @@ jobs:
             Auto-Release for version ${{ env.VERSION }}.
 
       - name: Upload Multisign APK to Release
+        if: github.event_name == 'push' && steps.release_check.outputs.needed == 'true'
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -73,6 +87,7 @@ jobs:
           asset_content_type: application/vnd.android.package-archive
 
       - name: Upload Multisign to Telegram
+        if: github.event_name == 'push' && steps.release_check.outputs.needed == 'true'
         uses: xz-dev/TelegramFileUploader@v1.1.1
         with:
           to-who: 'NekokoLPA'

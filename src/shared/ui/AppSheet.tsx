@@ -2,6 +2,7 @@ import React from 'react';
 import {Modal, Pressable, ScrollView, TouchableOpacity, useWindowDimensions} from 'react-native';
 import {Text as TText, useTheme, View, XStack, YStack} from 'tamagui';
 import {X} from '@tamagui/lucide-icons';
+import {SafeAreaProvider, useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import {fontSize, iconSize, radius} from '@/shared/theme/tokens';
 
@@ -39,59 +40,98 @@ export default function AppSheet({
   titleProps,
   paddingTop,
 }: AppSheetProps) {
-  const theme = useTheme();
-  const {height} = useWindowDimensions();
-
   return (
     <Modal
       visible={open}
       transparent
+      supportedOrientations={[
+        'portrait',
+        'portrait-upside-down',
+        'landscape-left',
+        'landscape-right',
+      ]}
       animationType="slide"
       onRequestClose={() => onOpenChange(false)}>
-      {/* Tapping the scrim dismisses, as a sheet should. The panel swallows
-          its own presses so a tap inside never closes it. */}
-      <Pressable
-        style={{flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(6,7,10,0.45)'}}
-        onPress={() => onOpenChange(false)}>
-        <Pressable onPress={() => {}}>
-          <YStack
-            maxHeight={height * 0.85}
-            backgroundColor="$surfaceRow"
-            borderTopLeftRadius={radius.xl}
-            borderTopRightRadius={radius.xl}
-            borderTopWidth={1}
-            borderTopColor="$borderColor">
-            <XStack
-              paddingHorizontal={20}
-              paddingVertical={16}
-              borderBottomWidth={1}
-              borderBottomColor="$borderColor"
-              alignItems="center"
-              justifyContent="space-between">
-              <TText color="$textDefault" fontSize={fontSize.xxl} fontWeight={'700' as any} {...titleProps}>
-                {title}
-              </TText>
-              <TouchableOpacity
-                accessibilityRole="button"
-                onPress={() => onOpenChange(false)}
-                hitSlop={12}>
-                <X size={iconSize.sm} color={theme.color9?.val as string} />
-              </TouchableOpacity>
-            </XStack>
-
-            <ScrollView
-              bounces={false}
-              keyboardShouldPersistTaps="handled"
-              contentContainerStyle={{
-                paddingBottom: 28,
-                paddingTop: paddingTop ?? 12,
-                paddingHorizontal: 20,
-              }}>
-              <View>{children}</View>
-            </ScrollView>
-          </YStack>
-        </Pressable>
-      </Pressable>
+      <SafeAreaProvider>
+        <SheetContent
+          onOpenChange={onOpenChange}
+          title={title}
+          titleProps={titleProps}
+          paddingTop={paddingTop}>
+          {children}
+        </SheetContent>
+      </SafeAreaProvider>
     </Modal>
+  );
+}
+
+function SheetContent({
+  onOpenChange,
+  title,
+  children,
+  titleProps,
+  paddingTop,
+}: Omit<AppSheetProps, 'open'>) {
+  const theme = useTheme();
+  const {height} = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+
+  return (
+    <Pressable
+      style={{
+        flex: 1,
+        justifyContent: 'flex-end',
+        paddingLeft: insets.left,
+        paddingRight: insets.right,
+        paddingTop: insets.top,
+        paddingBottom: insets.bottom,
+        backgroundColor: 'rgba(6,7,10,0.45)',
+      }}
+      onPress={() => onOpenChange(false)}>
+      <Pressable style={{width: '100%', maxWidth: 640, alignSelf: 'center'}} onPress={() => {}}>
+        <YStack
+          maxHeight={Math.max(0, Math.min(height * 0.85, height - insets.top - insets.bottom))}
+          backgroundColor="$surfaceRow"
+          borderTopLeftRadius={radius.xl}
+          borderTopRightRadius={radius.xl}
+          borderTopWidth={1}
+          borderTopColor="$borderColor">
+          <XStack
+            paddingHorizontal={20}
+            paddingVertical={16}
+            borderBottomWidth={1}
+            borderBottomColor="$borderColor"
+            alignItems="center"
+            justifyContent="space-between">
+            <TText
+              flex={1}
+              flexShrink={1}
+              color="$textDefault"
+              fontSize={fontSize.xxl}
+              fontWeight={'700' as any}
+              {...titleProps}>
+              {title}
+            </TText>
+            <TouchableOpacity
+              accessibilityRole="button"
+              onPress={() => onOpenChange(false)}
+              hitSlop={12}>
+              <X size={iconSize.sm} color={theme.color9?.val as string} />
+            </TouchableOpacity>
+          </XStack>
+
+          <ScrollView
+            bounces={false}
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={{
+              paddingBottom: 28,
+              paddingTop: paddingTop ?? 12,
+              paddingHorizontal: 20,
+            }}>
+            <View>{children}</View>
+          </ScrollView>
+        </YStack>
+      </Pressable>
+    </Pressable>
   );
 }

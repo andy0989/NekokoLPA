@@ -1,0 +1,187 @@
+diff --git a/node_modules/react-native-safe-area-context/ios/RNCSafeAreaUtils.h b/node_modules/react-native-safe-area-context/ios/RNCSafeAreaUtils.h
+--- a/node_modules/react-native-safe-area-context/ios/RNCSafeAreaUtils.h
++++ b/node_modules/react-native-safe-area-context/ios/RNCSafeAreaUtils.h
+@@ -24,6 +24,7 @@
+ #endif
+ 
+ #if TARGET_OS_IPHONE
++RCT_EXTERN UIEdgeInsets RNCInsetsAvoidingDivisions(UIView *view, UIEdgeInsets insets);
+ RCT_EXTERN UIEdgeInsets
+ RNCSafeAreaInsetsWithCornerAdaptation(UIView *view, RNCSafeAreaCornerAdaptation cornerAdaptation);
+ 
+diff --git a/node_modules/react-native-safe-area-context/ios/RNCSafeAreaUtils.m b/node_modules/react-native-safe-area-context/ios/RNCSafeAreaUtils.m
+--- a/node_modules/react-native-safe-area-context/ios/RNCSafeAreaUtils.m
++++ b/node_modules/react-native-safe-area-context/ios/RNCSafeAreaUtils.m
+@@ -41,6 +41,58 @@
+ #endif
+ 
+ #if TARGET_OS_IPHONE
++UIEdgeInsets RNCInsetsAvoidingDivisions(UIView *view, UIEdgeInsets insets)
++{
++#if defined(__IPHONE_27_1) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_27_1
++  if (@available(iOS 27.1, tvOS 27.1, visionOS 27.1, *)) {
++    CGRect bounds = view.bounds;
++    CGRect usable = UIEdgeInsetsInsetRect(bounds, insets);
++    for (UIViewReservedRegion *region in [view reservedRegionsOfKind:UIViewReservedRegionKind.divisionRegionKind]) {
++      CGRect division = CGRectIntersection(usable, region.frame);
++      if (CGRectIsEmpty(division) || CGRectIsNull(division)) {
++        continue;
++      }
++      // Match an overlay arrangement: controls occupy the trailing or bottom
++      // pane. The region includes the interactive margins around the fold.
++      CGRect candidates[] = {
++          CGRectMake(CGRectGetMinX(usable), CGRectGetMinY(usable),
++                     CGRectGetMinX(division) - CGRectGetMinX(usable), CGRectGetHeight(usable)),
++          CGRectMake(CGRectGetMinX(usable), CGRectGetMinY(usable),
++                     CGRectGetWidth(usable), CGRectGetMinY(division) - CGRectGetMinY(usable)),
++          CGRectMake(CGRectGetMaxX(division), CGRectGetMinY(usable),
++                     CGRectGetMaxX(usable) - CGRectGetMaxX(division), CGRectGetHeight(usable)),
++          CGRectMake(CGRectGetMinX(usable), CGRectGetMaxY(division),
++                     CGRectGetWidth(usable), CGRectGetMaxY(usable) - CGRectGetMaxY(division)),
++      };
++      NSUInteger preferred = CGRectGetHeight(region.frame) >= CGRectGetWidth(region.frame)
++          ? (view.effectiveUserInterfaceLayoutDirection == UIUserInterfaceLayoutDirectionRightToLeft ? 0 : 2)
++          : 3;
++      if (!CGRectIsEmpty(candidates[preferred])) {
++        usable = candidates[preferred];
++        continue;
++      }
++      CGFloat largestArea = 0;
++      for (NSUInteger index = 0; index < 4; index++) {
++        CGRect candidate = candidates[index];
++        CGFloat area = CGRectGetWidth(candidate) * CGRectGetHeight(candidate);
++        if (area > 0 && area >= largestArea) {
++          largestArea = area;
++          usable = candidate;
++        }
++      }
++      if (largestArea == 0) {
++        usable = CGRectMake(CGRectGetMaxX(usable), CGRectGetMaxY(usable), 0, 0);
++      }
++    }
++    return UIEdgeInsetsMake(CGRectGetMinY(usable) - CGRectGetMinY(bounds),
++                            CGRectGetMinX(usable) - CGRectGetMinX(bounds),
++                            CGRectGetMaxY(bounds) - CGRectGetMaxY(usable),
++                            CGRectGetMaxX(bounds) - CGRectGetMaxX(usable));
++  }
++#endif
++  return insets;
++}
++
+ UIEdgeInsets RNCSafeAreaInsetsWithCornerAdaptation(UIView *view, RNCSafeAreaCornerAdaptation cornerAdaptation)
+ {
+   // UIViewLayoutRegion is only declared by the iOS 26 SDK and later.
+diff --git a/node_modules/react-native-safe-area-context/ios/RNCSafeAreaProvider.m b/node_modules/react-native-safe-area-context/ios/RNCSafeAreaProvider.m
+--- a/node_modules/react-native-safe-area-context/ios/RNCSafeAreaProvider.m
++++ b/node_modules/react-native-safe-area-context/ios/RNCSafeAreaProvider.m
+@@ -95,6 +95,11 @@
+   NSEdgeInsets horizontalCornerAdaptedInsets = safeAreaInsets;
+ #endif
+ 
++#if TARGET_OS_IPHONE
++  safeAreaInsets = RNCInsetsAvoidingDivisions(self, safeAreaInsets);
++  verticalCornerAdaptedInsets = RNCInsetsAvoidingDivisions(self, verticalCornerAdaptedInsets);
++  horizontalCornerAdaptedInsets = RNCInsetsAvoidingDivisions(self, horizontalCornerAdaptedInsets);
++#endif
+   CGRect frame = [self convertRect:self.bounds toView:RNCParentViewController(self).view];
+ 
+   if (_initialInsetsSent &&
+@@ -130,6 +135,25 @@
+   [_eventDispatcher sendEvent:onInsetsChangeEvent];
+ }
+ 
++- (void)didMoveToWindow
++{
++  [super didMoveToWindow];
++  [self setNeedsUpdateConstraints];
++}
++
++- (void)updateConstraints
++{
++  [super updateConstraints];
++#if defined(__IPHONE_27_1) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_27_1
++  if (@available(iOS 27.1, tvOS 27.1, visionOS 27.1, *)) {
++    // Reading here registers UIKit's automatic reserved-region tracking, even
++    // when the device pose changes without changing the window dimensions.
++    [self reservedRegionsOfKind:UIViewReservedRegionKind.divisionRegionKind];
++    [self setNeedsLayout];
++  }
++#endif
++}
++
+ - (void)layoutSubviews
+ {
+   [super layoutSubviews];
+diff --git a/node_modules/react-native-safe-area-context/ios/Fabric/RNCSafeAreaProviderComponentView.mm b/node_modules/react-native-safe-area-context/ios/Fabric/RNCSafeAreaProviderComponentView.mm
+--- a/node_modules/react-native-safe-area-context/ios/Fabric/RNCSafeAreaProviderComponentView.mm
++++ b/node_modules/react-native-safe-area-context/ios/Fabric/RNCSafeAreaProviderComponentView.mm
+@@ -110,6 +110,11 @@
+   UIEdgeInsets verticalCornerAdaptedInsets = safeAreaInsets;
+   UIEdgeInsets horizontalCornerAdaptedInsets = safeAreaInsets;
+ #endif
++#if TARGET_OS_IPHONE
++  safeAreaInsets = RNCInsetsAvoidingDivisions(self, safeAreaInsets);
++  verticalCornerAdaptedInsets = RNCInsetsAvoidingDivisions(self, verticalCornerAdaptedInsets);
++  horizontalCornerAdaptedInsets = RNCInsetsAvoidingDivisions(self, horizontalCornerAdaptedInsets);
++#endif
+   CGRect frame = [self convertRect:self.bounds toView:RNCParentViewController(self).view];
+ 
+   if (_initialInsetsSent &&
+@@ -169,6 +174,25 @@
+   }
+ }
+ 
++- (void)didMoveToWindow
++{
++  [super didMoveToWindow];
++  [self setNeedsUpdateConstraints];
++}
++
++- (void)updateConstraints
++{
++  [super updateConstraints];
++#if defined(__IPHONE_27_1) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_27_1
++  if (@available(iOS 27.1, tvOS 27.1, visionOS 27.1, *)) {
++    // Reading here registers UIKit's automatic reserved-region tracking, even
++    // when the device pose changes without changing the window dimensions.
++    [self reservedRegionsOfKind:UIViewReservedRegionKind.divisionRegionKind];
++    [self setNeedsLayout];
++  }
++#endif
++}
++
+ - (void)layoutSubviews
+ {
+   [super layoutSubviews];
+diff --git a/node_modules/react-native-safe-area-context/ios/RNCSafeAreaView.m b/node_modules/react-native-safe-area-context/ios/RNCSafeAreaView.m
+--- a/node_modules/react-native-safe-area-context/ios/RNCSafeAreaView.m
++++ b/node_modules/react-native-safe-area-context/ios/RNCSafeAreaView.m
+@@ -113,6 +113,7 @@
+   }
+ #if TARGET_OS_IPHONE
+   UIEdgeInsets safeAreaInsets = RNCSafeAreaInsetsWithCornerAdaptation(_providerView, _cornerAdaptation);
++  safeAreaInsets = RNCInsetsAvoidingDivisions(_providerView, safeAreaInsets);
+   if (UIEdgeInsetsEqualToEdgeInsetsWithThreshold(safeAreaInsets, _currentSafeAreaInsets, 1.0 / RCTScreenScale())) {
+     return;
+   }
+diff --git a/node_modules/react-native-safe-area-context/ios/Fabric/RNCSafeAreaViewComponentView.mm b/node_modules/react-native-safe-area-context/ios/Fabric/RNCSafeAreaViewComponentView.mm
+--- a/node_modules/react-native-safe-area-context/ios/Fabric/RNCSafeAreaViewComponentView.mm
++++ b/node_modules/react-native-safe-area-context/ios/Fabric/RNCSafeAreaViewComponentView.mm
+@@ -142,7 +142,7 @@
+   UIEdgeInsets safeAreaInsets = _providerView.safeAreaInsets;
+   RNCSafeAreaCornerAdaptation cornerAdaptation = [self cornerAdaptation];
+   if (cornerAdaptation == RNCSafeAreaCornerAdaptationNone) {
+-    return safeAreaInsets;
++    return RNCInsetsAvoidingDivisions(_providerView, safeAreaInsets);
+   }
+   RNCSafeAreaCornerInputs cornerInputs = RNCSafeAreaCornerInputsMake(_providerView, safeAreaInsets);
+   if (measureCorners || cornerAdaptation != _measuredCornerAdaptation ||
+@@ -151,7 +151,7 @@
+     _measuredCornerAdaptation = cornerAdaptation;
+     _cornerAdaptedInsets = RNCSafeAreaInsetsWithCornerAdaptation(_providerView, cornerAdaptation);
+   }
+-  return _cornerAdaptedInsets;
++  return RNCInsetsAvoidingDivisions(_providerView, _cornerAdaptedInsets);
+ }
+ #endif
+ 

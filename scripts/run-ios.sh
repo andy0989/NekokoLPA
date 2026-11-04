@@ -74,7 +74,13 @@ fi
 
 # --- install and launch -----------------------------------------------------
 xcrun simctl bootstatus "$UDID" -b >/dev/null 2>&1 || xcrun simctl boot "$UDID" || true
-open -a Simulator --args -CurrentDeviceUDID "$UDID" >/dev/null 2>&1 || true
+XCODE_DEVELOPER_DIR="${DEVELOPER_DIR:-$(xcode-select -p)}"
+DEVICE_HUB="${XCODE_DEVELOPER_DIR%/Developer}/Applications/DeviceHub.app"
+if [ -d "$DEVICE_HUB" ]; then
+  open -a "$DEVICE_HUB" >/dev/null 2>&1 || true
+else
+  open -a Simulator --args -CurrentDeviceUDID "$UDID" >/dev/null 2>&1 || true
+fi
 echo "==> Installing"
 xcrun simctl install "$UDID" "$APP"
 echo "==> Launching $BUNDLE_ID"

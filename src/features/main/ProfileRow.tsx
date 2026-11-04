@@ -1,7 +1,7 @@
 import {parseMetadata} from '@/shared/utils/parser';
 import {findPhoneNumbersInText} from 'libphonenumber-js/min';
 import {preferences} from '@/shared/storage';
-import {Swipeable} from 'react-native-gesture-handler';
+import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import {Text, useTheme, XStack, YStack} from 'tamagui';
 // useTheme covers dynamic color; no need for useColorScheme here
 import {Pencil, Trash2} from '@tamagui/lucide-icons';

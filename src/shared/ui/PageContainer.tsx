@@ -1,6 +1,5 @@
 import React, {PropsWithChildren} from 'react';
 import {KeyboardAvoidingView, Platform, ScrollView, View, ScrollViewProps} from 'react-native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {YStack} from 'tamagui';
 
 interface PageContainerProps {
@@ -31,7 +30,7 @@ interface PageContainerProps {
  * - Horizontal padding: 10px (configurable)
  * - Vertical padding: scrollable with keyboard avoidance
  * - Extra height at bottom for content
- * - Avoids keyboard and bottom safe area
+ * - Avoids the keyboard; Screen supplies the safe area
  */
 export default function PageContainer({
   children,
@@ -41,13 +40,14 @@ export default function PageContainer({
   horizontalPadding = 20,
   topPadding = 0,
 }: PropsWithChildren<PageContainerProps>) {
-  const insets = useSafeAreaInsets();
-
   const content = (
     <YStack
+      width="100%"
+      maxWidth={800}
+      alignSelf="center"
       paddingHorizontal={horizontalPadding}
       paddingTop={topPadding}
-      paddingBottom={Math.max(insets.bottom, bottomPadding)}
+      paddingBottom={bottomPadding}
       flex={1}>
       {children}
     </YStack>

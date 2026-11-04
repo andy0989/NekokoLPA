@@ -3,7 +3,7 @@ import {Alert, Image, TouchableOpacity, View} from 'react-native';
 import {useTranslation} from 'react-i18next';
 import Screen from '@/shared/ui/Screen';
 import type {RootScreenProps} from '@/app/navigation/types';
-import {Swipeable} from 'react-native-gesture-handler';
+import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import {Text, useTheme, XStack, YStack} from 'tamagui';
 import {useSelector} from 'react-redux';
 import {selectDeviceState} from '@/store';
@@ -136,7 +136,9 @@ function Notifications({route}: RootScreenProps<'Notifications'>) {
                 />
                 <YStack flex={1} minWidth={0} gap={5}>
                   <XStack alignItems="center" gap={8}>
-                    <Pill tone={type.toLowerCase() === 'delete' ? 'danger' : 'neutral'}>{type}</Pill>
+                    <Pill tone={type.toLowerCase() === 'delete' ? 'danger' : 'neutral'}>
+                      {type}
+                    </Pill>
                     <Text
                       color="$textDefault"
                       numberOfLines={1}
@@ -201,7 +203,11 @@ function Notifications({route}: RootScreenProps<'Notifications'>) {
       <YStack gap={16}>
         {groups.map(group => (
           <YStack key={group.host} gap={8}>
-            <XStack alignItems="baseline" justifyContent="space-between" gap={10} paddingHorizontal={4}>
+            <XStack
+              alignItems="baseline"
+              justifyContent="space-between"
+              gap={10}
+              paddingHorizontal={4}>
               <Text
                 color="$color9"
                 fontFamily={fontFamily.mono as any}

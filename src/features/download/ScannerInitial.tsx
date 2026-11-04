@@ -1,5 +1,5 @@
 import Screen from '@/shared/ui/Screen';
-import {Dimensions, View} from 'react-native';
+import {useWindowDimensions, View} from 'react-native';
 import {
   Button as TButton,
   Card,
@@ -41,6 +41,7 @@ import {fontSize, radius} from '@/shared/theme/tokens';
 
 export function ScannerInitial({appLink, deviceId, finishAuthenticate}: any) {
   const theme = useTheme();
+  const {width} = useWindowDimensions();
   const formatSize = useFormatSize();
   const DeviceState = useSelector(selectDeviceState(deviceId));
 
@@ -100,7 +101,7 @@ export function ScannerInitial({appLink, deviceId, finishAuthenticate}: any) {
 
   const cameraDevice = useCameraDevice('back');
 
-  const size = Math.min(250, Dimensions.get('window').width - 50);
+  const size = Math.max(0, Math.min(250, width - 50));
 
   const handleDiscovery = async () => {
     await makeLoading(setLoading, async () => {

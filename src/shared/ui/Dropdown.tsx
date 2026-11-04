@@ -1,5 +1,13 @@
-import React, {useCallback, useRef, useState} from 'react';
-import {Dimensions, Modal, Pressable, ScrollView, TouchableOpacity, View} from 'react-native';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
+import {
+  Modal,
+  Pressable,
+  ScrollView,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {Check} from '@tamagui/lucide-icons';
 import {Text as TText, useTheme, XStack, YStack} from 'tamagui';
 
@@ -51,8 +59,15 @@ export default function Dropdown({
   children: React.ReactNode;
 }) {
   const theme = useTheme();
-  const triggerRef = useRef<View>(null);
+  const triggerRef = useRef<React.ComponentRef<typeof View>>(null);
   const [anchor, setAnchor] = useState<Anchor | null>(null);
+  const window = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+
+  // Window changes invalidate coordinates measured before a fold or rotation.
+  useEffect(() => {
+    setAnchor(null);
+  }, [window.width, window.height, insets.top, insets.bottom, insets.left, insets.right]);
 
   const open = useCallback(() => {
     triggerRef.current?.measureInWindow((x, y, width, height) => {
@@ -60,12 +75,19 @@ export default function Dropdown({
     });
   }, []);
 
-  const window = Dimensions.get('window');
-  const spaceBelow = anchor ? window.height - (anchor.y + anchor.height) : 0;
-  const flipAbove = anchor ? spaceBelow < 160 && anchor.y > spaceBelow : false;
-  const maxHeight = Math.min(
-    MENU_MAX_HEIGHT,
-    anchor ? (flipAbove ? anchor.y : spaceBelow) - EDGE_MARGIN : MENU_MAX_HEIGHT,
+  const menuWidth = Math.max(
+    0,
+    Math.min(MENU_WIDTH, window.width - insets.left - insets.right - EDGE_MARGIN * 2),
+  );
+  const spaceBelow = anchor ? window.height - insets.bottom - (anchor.y + anchor.height) : 0;
+  const spaceAbove = anchor ? anchor.y - insets.top : 0;
+  const flipAbove = spaceBelow < 160 && spaceAbove > spaceBelow;
+  const maxHeight = Math.max(
+    0,
+    Math.min(
+      MENU_MAX_HEIGHT,
+      anchor ? (flipAbove ? spaceAbove : spaceBelow) - EDGE_MARGIN - 4 : MENU_MAX_HEIGHT,
+    ),
   );
 
   return (
@@ -76,7 +98,17 @@ export default function Dropdown({
         </TouchableOpacity>
       </View>
 
-      <Modal visible={anchor !== null} transparent animationType="fade">
+      <Modal
+        visible={anchor !== null}
+        transparent
+        supportedOrientations={[
+          'portrait',
+          'portrait-upside-down',
+          'landscape-left',
+          'landscape-right',
+        ]}
+        animationType="fade"
+        onRequestClose={() => setAnchor(null)}>
         {/* The backdrop is the dismiss target, so a tap anywhere outside
             closes the menu the way a platform menu does. */}
         <Pressable
@@ -86,15 +118,15 @@ export default function Dropdown({
             <YStack
               position="absolute"
               left={Math.max(
-                EDGE_MARGIN,
+                insets.left + EDGE_MARGIN,
                 Math.min(
-                  anchor.x + anchor.width - MENU_WIDTH,
-                  window.width - MENU_WIDTH - EDGE_MARGIN,
+                  anchor.x + anchor.width - menuWidth,
+                  window.width - insets.right - menuWidth - EDGE_MARGIN,
                 ),
               )}
               top={flipAbove ? undefined : anchor.y + anchor.height + 4}
               bottom={flipAbove ? window.height - anchor.y + 4 : undefined}
-              width={MENU_WIDTH}
+              width={menuWidth}
               maxHeight={maxHeight}
               backgroundColor="$surfaceSpecial"
               borderRadius={radius.lg}
@@ -130,10 +162,7 @@ export default function Dropdown({
                           {option.label}
                         </TText>
                         {selected && (
-                          <Check
-                            size={iconSize.sm}
-                            color={theme.primaryColor?.val as string}
-                          />
+                          <Check size={iconSize.sm} color={theme.primaryColor?.val as string} />
                         )}
                       </XStack>
                     </TouchableOpacity>

@@ -1,5 +1,6 @@
 import React, {useEffect, useRef} from 'react';
-import {Modal, TouchableOpacity} from 'react-native';
+import {Modal, ScrollView, TouchableOpacity} from 'react-native';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {useTranslation} from 'react-i18next';
 import {Text as TText, useTheme, XStack, YStack} from 'tamagui';
 
@@ -12,6 +13,7 @@ import {
   reportsBytes,
 } from '@/features/download/downloadPhases';
 import {useFormatSize} from '@/shared/hooks/useFormatSize';
+import SafeScreen from '@/shared/ui/SafeScreen';
 
 /**
  * Full-screen download progress.
@@ -61,8 +63,7 @@ export default function DownloadProgress({
     };
   }, []);
 
-  const showBytes =
-    reportsBytes(progress?.message) && !!progress?.total && progress.total > 0;
+  const showBytes = reportsBytes(progress?.message) && !!progress?.total && progress.total > 0;
 
   const dotColor = (state: string) =>
     state === 'done'
@@ -76,69 +77,92 @@ export default function DownloadProgress({
   // against that content rather than the window: the percentage collided with
   // the buttons underneath and the phase list bled out below the fold.
   return (
-    <Modal visible animationType="fade" presentationStyle="overFullScreen" transparent>
-      <YStack
-        flex={1}
-        backgroundColor="$background"
-        justifyContent="center"
-        gap={26}
-        paddingHorizontal={26}>
-        <YStack gap={8}>
-          <SectionLabel>{t('main:download_installing_on', {target})}</SectionLabel>
-          {!!profileName && (
-            <TText
-              color="$textDefault"
-              fontSize={fontSize.xxl}
-              fontWeight={'600' as any}
-              letterSpacing={tracking.title}>
-              {profileName}
-            </TText>
-          )}
-        </YStack>
+    <Modal
+      visible
+      animationType="fade"
+      presentationStyle="overFullScreen"
+      transparent
+      supportedOrientations={[
+        'portrait',
+        'portrait-upside-down',
+        'landscape-left',
+        'landscape-right',
+      ]}
+      onRequestClose={onCancel ?? (() => {})}>
+      <SafeAreaProvider>
+        <SafeScreen>
+          <ScrollView
+            contentContainerStyle={{
+              flexGrow: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              padding: 26,
+            }}>
+            <YStack width="100%" maxWidth={640} gap={26}>
+              <YStack gap={8}>
+                <SectionLabel>{t('main:download_installing_on', {target})}</SectionLabel>
+                {!!profileName && (
+                  <TText
+                    color="$textDefault"
+                    fontSize={fontSize.xxl}
+                    fontWeight={'600' as any}
+                    letterSpacing={tracking.title}>
+                    {profileName}
+                  </TText>
+                )}
+              </YStack>
 
-        <YStack gap={14}>
-          <TText
-            color="$textDefault"
-            fontFamily={fontFamily.mono as any}
-            fontSize={fontSize.hero}
-            fontWeight={'600' as any}>
-            {percent}%
-          </TText>
-          <YStack
-            height={4}
-            borderRadius={radius.pill}
-            backgroundColor="$surfaceSpecial"
-            overflow="hidden">
-            <YStack height="100%" width={`${percent}%`} backgroundColor="$primaryColor" />
-          </YStack>
-          {showBytes && (
-            <TText color="$color9" fontFamily={fontFamily.mono as any} fontSize={fontSize.md}>
-              {formatSize(progress?.progress ?? 0)} / {formatSize(progress?.total ?? 0)}
-            </TText>
-          )}
-        </YStack>
+              <YStack gap={14}>
+                <TText
+                  color="$textDefault"
+                  fontFamily={fontFamily.mono as any}
+                  fontSize={fontSize.hero}
+                  fontWeight={'600' as any}>
+                  {percent}%
+                </TText>
+                <YStack
+                  height={4}
+                  borderRadius={radius.pill}
+                  backgroundColor="$surfaceSpecial"
+                  overflow="hidden">
+                  <YStack height="100%" width={`${percent}%`} backgroundColor="$primaryColor" />
+                </YStack>
+                {showBytes && (
+                  <TText color="$color9" fontFamily={fontFamily.mono as any} fontSize={fontSize.md}>
+                    {formatSize(progress?.progress ?? 0)} / {formatSize(progress?.total ?? 0)}
+                  </TText>
+                )}
+              </YStack>
 
-        <YStack gap={11}>
-          {phases.map(phase => (
-            <XStack key={phase.labelKey} alignItems="center" gap={10}>
-              <YStack width={7} height={7} borderRadius={2} backgroundColor={dotColor(phase.state)} />
-              <TText
-                color={phase.state === 'pending' ? '$color9' : '$textDefault'}
-                fontSize={fontSize.md}>
-                {t(phase.labelKey)}
-              </TText>
-            </XStack>
-          ))}
-        </YStack>
+              <YStack gap={11}>
+                {phases.map(phase => (
+                  <XStack key={phase.labelKey} alignItems="center" gap={10}>
+                    <YStack
+                      width={7}
+                      height={7}
+                      borderRadius={2}
+                      backgroundColor={dotColor(phase.state)}
+                    />
+                    <TText
+                      color={phase.state === 'pending' ? '$color9' : '$textDefault'}
+                      fontSize={fontSize.md}>
+                      {t(phase.labelKey)}
+                    </TText>
+                  </XStack>
+                ))}
+              </YStack>
 
-        {onCancel && (
-          <TouchableOpacity onPress={onCancel} style={{alignSelf: 'flex-start'}}>
-            <TText color="$color6" fontSize={fontSize.lg}>
-              {t('main:download_cancel')}
-            </TText>
-          </TouchableOpacity>
-        )}
-      </YStack>
+              {onCancel && (
+                <TouchableOpacity onPress={onCancel} style={{alignSelf: 'flex-start'}}>
+                  <TText color="$color6" fontSize={fontSize.lg}>
+                    {t('main:download_cancel')}
+                  </TText>
+                </TouchableOpacity>
+              )}
+            </YStack>
+          </ScrollView>
+        </SafeScreen>
+      </SafeAreaProvider>
     </Modal>
   );
 }
